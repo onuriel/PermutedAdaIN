@@ -26,7 +26,7 @@ Please refer to the original repositories for setup and installation information
  - Code based on https://github.com/google-research/augmix
  - Example of running the experiment is given in [corruption/training_scripts.sh](https://github.com/onuriel/PermutedAdaIN/blob/main/corruption/training_scripts.sh)
  
-##Credit
+## Credit
 If you find this work useful please consider citing it:
 ```
 @article{nuriel2020padain,
