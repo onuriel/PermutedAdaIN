@@ -26,3 +26,13 @@ Please refer to the original repositories for setup and installation information
  - Code based on https://github.com/google-research/augmix
  - Example of running the experiment is given in [corruption/training_scripts.sh](https://github.com/onuriel/PermutedAdaIN/blob/main/corruption/training_scripts.sh)
  
+##Credit
+If you find this work useful please consider citing it:
+```
+@article{nuriel2020padain,
+  title={Permuted AdaIN: Reducing the Bias Towards Global Statistics in Image Classification},
+  author={Nuriel, Oren and Benaim, Sagie and Wolf, Lior},
+  journal={arXiv preprint arXiv:2010.05785},
+  year={2020}
+}
+```
