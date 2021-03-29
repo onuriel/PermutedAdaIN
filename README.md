@@ -4,6 +4,22 @@ This repository contains the implementation of the experiments in the paper in p
 
 Permuted AdaIN based on AdaIN for style transfer swaps image statistics in intermediate layers effectively removing the reliance of the model on global image statistics to improve image classification. 
 
+## Integrating into a standard architecture
+Sample code for the class can be found in [permutedAdaIN.py](https://github.com/onuriel/PermutedAdaIN/blob/main/permutedAdaIN.py)
+
+```
+# in the init of a pytorch module for training (no learnable weights, and isn't applied during inference so can load with or without)
+    self.perumte_adain = PermuteAdaptiveInstanceNorm2d(p=0.01)
+
+
+
+# in the forward
+    out = self.conv(out)
+    out = self.perumte_adain(out)
+    out = self.bn(out)
+```
+
+
 ## Intuition
 Below we see the effect of applying AdaIN between two images for different layers of an encoder in a standard trained hourglass autoencoder. In addition, in the last column we see the effect of applying a style-transfer algorithm.
 ![Autoencoder](./figs/autoencoder.png)
@@ -19,20 +35,6 @@ In contrast, (c) depicts an image of shark on land. The pAdaIN model relies less
    <img src="./figs/padain_gradcam.svg" height="600" alt="gradcam">
 </p> 
 
-## Integrating into any standard architecture
-Sample code for the class can be found in [permutedAdaIN.py](https://github.com/onuriel/PermutedAdaIN/blob/main/permutedAdaIN.py)
-
-```
-# in the init of a pytorch module for training (no learnable weights, and isn't applied during inference so can load with or without)
-    self.perumte_adain = PermuteAdaptiveInstanceNorm2d(p=0.01)
-
-
-
-# in the forward
-    out = self.conv(out)
-    out = self.perumte_adain(out)
-    out = self.bn(out)
-```
 
 ## Experiments
 
