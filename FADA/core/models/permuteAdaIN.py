@@ -3,17 +3,11 @@ import random
 import torch
 import torch.nn as nn
 
-DEFAULT_P = 0.01
 class PermuteAdaptiveInstanceNorm2d(nn.Module):
-    def __init__(self, p=None, adv=False, **kwargs):
-        if 'permute' in kwargs:
-            self.permute = kwargs['permute']
-        else: self.permute = True
+    def __init__(self, p=0.01, adv=False, **kwargs):
         super(PermuteAdaptiveInstanceNorm2d, self).__init__()
-        if p is None:
-            self.p = DEFAULT_P
-        else:
-            self.p = p
+
+        self.p = p
         self.adv = adv
 
     def forward(self, x):
@@ -33,38 +27,34 @@ class PermuteAdaptiveInstanceNorm2d(nn.Module):
             return x
 
         if self.adv:
-            x = torch.cat([adaptive_instance_normalization(x[:N//2], x[N//2:], permute=True), x[N//2:]], dim=0)
+            x = torch.cat([adaptive_instance_normalization(x[:N//2], x[N//2:]), x[N//2:]], dim=0)
         else:
-            x = adaptive_instance_normalization(x, x[perm_indices], True)
+            x = adaptive_instance_normalization(x, x[perm_indices])
         return x
 
     def extra_repr(self) -> str:
-        return 'p={} permute={}, adv={}'.format(
-            self.p, self.permute, self.adv
+        return 'p={}, adv={}'.format(
+            self.p, self.adv
         )
 
 
 
-def calc_mean_std(feat):
+def calc_mean_std(feat, eps=1e-5):
     size = feat.size()
     assert (len(size) == 4)
     N, C, H, W = size
-    feat_std = feat.view(N, C, -1).std(dim=2).view(N,C, 1, 1)
-    feat_mean = feat.view(N, C, -1).mean(dim=2).view(N,C,1, 1)
+    feat_std = torch.sqrt(feat.view(N, C, -1).var(dim=2).view(N, C, 1, 1) + eps)
+    feat_mean = feat.view(N, C, -1).mean(dim=2).view(N, C, 1, 1)
     return feat_mean, feat_std
 
 
-def adaptive_instance_normalization(content_feat, style_feat, permute=False):
+def adaptive_instance_normalization(content_feat, style_feat, eps=1e-5):
     assert (content_feat.size()[:2] == style_feat.size()[:2])
     size = content_feat.size()
-
-    style_mean, style_std = calc_mean_std(style_feat.detach())
-    content_mean, content_std = calc_mean_std(content_feat)
-    content_std = content_std + 1e-4  # to avoid division by 0
+    style_mean, style_std = calc_mean_std(style_feat.detach(), eps)
+    content_mean, content_std = calc_mean_std(content_feat, eps)
+    content_std = content_std + eps  # to avoid division by 0
     normalized_feat = (content_feat - content_mean.expand(
         size)) / content_std.expand(size)
-    if permute:
-        normalized_feat = normalized_feat * style_std.expand(size) + style_mean.expand(size)
-    return normalized_feat
-
+    return normalized_feat * style_std.expand(size) + style_mean.expand(size)
 

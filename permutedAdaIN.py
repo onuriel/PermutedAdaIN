@@ -1,16 +1,14 @@
+"""
+Implementation of the pAdaIN layer. This layer can be added after every convolutional layer and acts
+as a regularization which increases overall performance.
+It is only applied during training.
+"""
+
+
 import random
 
 import torch
 import torch.nn as nn
-
-DEFAULT_P = 0.01
-
-class Identity(torch.nn.Module):
-    def __init__(self, *args, **kwargs):
-        super().__init__()
-
-    def forward(self, x):
-        return x
 
 
 class PermuteAdaptiveInstanceNorm2d(nn.Module):

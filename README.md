@@ -19,6 +19,21 @@ In contrast, (c) depicts an image of shark on land. The pAdaIN model relies less
    <img src="./figs/padain_gradcam.svg" height="600" alt="gradcam">
 </p> 
 
+## Integrating into any standard architecture
+Sample code for the class can be found in [permutedAdaIN.py](https://github.com/onuriel/PermutedAdaIN/blob/main/permutedAdaIN.py)
+
+```
+# in the init of a pytorch module for training (no learnable weights, and isn't applied during inference so can load with or without)
+    self.perumte_adain = PermuteAdaptiveInstanceNorm2d(p=0.01)
+
+
+
+# in the forward
+    out = self.conv(out)
+    out = self.perumte_adain(out)
+    out = self.bn(out)
+```
+
 ## Experiments
 
 Experimental code was taken from multiple repositories - thus this repository only provides minor adjustments to the original repositories.
